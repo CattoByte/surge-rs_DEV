@@ -1,0 +1,14 @@
+[package]
+name = "surge-rs"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+textplots = "0.8.7"
+
+[build-dependencies]
+bindgen = "0.72.1"
+cmake = "0.1.57"
+serde_json = "1.0.149"
+shell-words = "1.1.1"
+cc = "1.2.57"
