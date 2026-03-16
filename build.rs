@@ -1,6 +1,9 @@
 use std::{collections::HashSet, env, path::PathBuf};
 
 fn main() {
+    println!("cargo:-rerun-if-changed=wrapper.h");
+    println!("cargo:-rerun-if-changed=cpp");
+
     let dst = cmake::Config::new("sbmod/surge")
         .define("SURGE_SKIP_JUCE_FOR_RACK", "ON")
         .define("SURGE_SKIP_VST3", "ON")
@@ -89,7 +92,7 @@ fn main() {
         .blocklist_item("__gnu_.*")         // fix for proprietary data (somewhat).
         .allowlist_item("Surge.*")          // fix for everything else (the nuclear option).
         .allowlist_item(".*idFor.*")        // fix for functions i need (unexported).
-        .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()));
+        .parse_callbacks(Box::new(bindgen::CargoCallbacks::new().rerun_on_header_files(false)));
 
     // get and use all the include paths from the configure.
     let mut unique = HashSet::new();
