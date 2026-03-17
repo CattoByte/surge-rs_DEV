@@ -92,6 +92,8 @@ fn main() {
         .blocklist_item("__gnu_.*")         // fix for proprietary data (somewhat).
         .allowlist_item("Surge.*")          // fix for everything else (the nuclear option).
         .allowlist_item(".*idFor.*")        // fix for functions i need (unexported).
+        .allowlist_item(".*Storage.*")      // fix for surge storage (most stuff).
+        .allowlist_item(".*State.*")        // fix for surge storage (other stuff).
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new().rerun_on_header_files(false)));
 
     // get and use all the include paths from the configure.

@@ -1,7 +1,7 @@
 use ringbuf::{HeapRb, traits::{Consumer, Observer, Producer, Split}};
-use surge_rs::SurgeSynthesizer;
+use surge_rs::EasySurge;
 
-use std::{sync::{Arc, Mutex}, thread, time::Duration};
+use std::{thread, time::Duration};
 use textplots::{Chart, Plot, Shape};
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 
@@ -18,14 +18,22 @@ fn main() {
 
     // synthcom.
     thread::spawn(move || {
-        let mut synth = SurgeSynthesizer::new(48000.0);
+        let mut synth = EasySurge::new(48000.0);
+        synth.set_parameter("A Osc 1 Type",             0.45).unwrap();
+        synth.set_parameter("A Osc 1 M1 Amount",        0.5).unwrap();
+        synth.set_parameter("A Osc 1 M1 Ratio",         0.62).unwrap();
+        synth.set_parameter("A Amp EG Attack",          0.25).unwrap();
+        synth.set_parameter("A Amp EG Decay",           0.15).unwrap();
+        synth.set_parameter("A Amp EG Sustain",         0.5).unwrap();
+        synth.set_parameter("A Amp EG Release",         0.5).unwrap();
+        synth.set_parameter("A Portamento",             0.35).unwrap();
 
         loop {
             while let Some(cmd) = c_cns.try_pop() { // good idea!
                 match cmd {
-                    Command::NoteOn { note } => { synth.play_note(0, note, 127, 0, 0, 0); }
-                    Command::NoteOff { note } => { synth.release_note(0, note, 127, 0); }
-                    Command::AllOff => { synth.all_notes_off(); }
+                    Command::NoteOn { note } => { synth.play_note(0, note, 127, 0); }
+                    Command::NoteOff { note } => { synth.release_note(0, note, 127); }
+                    Command::AllOff => { synth.shut_all_notes(); }
                 }
             }
 
@@ -58,11 +66,12 @@ fn main() {
                 .map(|(i, &y)| (i as f32, y))
                 .collect();
 
+            //print!("{}[2J", 27 as char);
             Chart::new(200, 100, 0.0, data.len() as f32)
                 .lineplot(&Shape::Lines(&data))
                 .display();
 
-            thread::sleep(Duration::from_millis(30));
+            thread::sleep(Duration::from_millis(1000));
          }
     });
     eprintln!("spawn draw thread.");
@@ -106,8 +115,10 @@ fn main() {
             println!("NOTEON: {}.", n);
         }
         thread::sleep(Duration::from_millis(50));
-        c_prd.try_push(Command::AllOff);
-        println!("ALLOFF.");
+        for n in notes {
+            c_prd.try_push(Command::NoteOff { note: n + 2 });
+            println!("NOTEON: {}.", n);
+        }
 
         thread::sleep(Duration::from_millis(50));
         for n in notes {
@@ -115,8 +126,10 @@ fn main() {
             println!("NOTEON: {}.", n);
         }
         thread::sleep(Duration::from_millis(100));
-        c_prd.try_push(Command::AllOff);
-        println!("ALLOFF.");
+        for n in notes {
+            c_prd.try_push(Command::NoteOff { note: n + 1 });
+            println!("NOTEOFF: {}.", n);
+        }
 
         initial += 8;
         thread::sleep(Duration::from_millis(200));
