@@ -9,7 +9,6 @@ class ErrCork : public SurgeSynthesizer::PluginLayer {
 };
 
 extern "C" {
-
 	SurgeSynthesizer* create_engine(float sr) {
 		auto* layer = new ErrCork();
 		auto* surge = new SurgeSynthesizer(layer, "");

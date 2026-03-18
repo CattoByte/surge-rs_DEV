@@ -4,8 +4,9 @@ use super::parameter::Parameter;
 use std::ffi;
 
 // should this take &self and &mut index instead? for clarity up ahead.
+// update: yes. yes it should.
 macro_rules! stringer {
-    ($self:ident, $index:ident, $function:ident) => {{
+    (&$self:ident, &mut $index:ident, $function:ident) => {{
         let mut buffer = [0i8; 256];
         unsafe {
             hell_ffi::$function($self.ptr, &mut $index.0, buffer.as_mut_ptr());
@@ -174,23 +175,23 @@ impl SurgeSynthesizer {
     }
 
     pub fn get_parameter_display(&self, index: &mut SurgeId) -> String {
-        stringer!(self, index, getParameterDisplay)
+        stringer!(&self, &mut index, getParameterDisplay)
     }
 
     pub fn get_parameter_display_alt(&self, index: &mut SurgeId) -> String {
-        stringer!(self, index, getParameterDisplayAlt)
+        stringer!(&self, &mut index, getParameterDisplayAlt)
     }
 
     pub fn get_parameter_name(&self, index: &mut SurgeId) -> String {
-        stringer!(self, index, getParameterName)
+        stringer!(&self, &mut index, getParameterName)
     }
 
     pub fn get_parameter_name_extended_by_fx_group(&self, index: &mut SurgeId) -> String {
-        stringer!(self, index, getParameterNameExtendedByFXGroup)
+        stringer!(&self, &mut index, getParameterNameExtendedByFXGroup)
     }
 
     pub fn get_parameter_accessible_name(&self, index: &mut SurgeId) -> String {
-        stringer!(self, index, getParameterAccessibleName)
+        stringer!(&self, &mut index, getParameterAccessibleName)
     }
 
     /*pub fn get_parameter_meta(&self, index: &mut SurgeId) -> ParameterMeta {

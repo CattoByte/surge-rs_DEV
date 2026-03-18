@@ -40,23 +40,6 @@ fn main() {
     println!("cargo:rustc-link-lib=static=strnatcmp");
     println!("cargo:rustc-link-lib=static=tinyxml");
 
-/*./target/debug/build/surge-rs-b9682071e1fd954b/out/libbridge.a
-./target/debug/build/surge-rs-b9682071e1fd954b/out/build/src/lua/libsurge-lua-src.a
-./target/debug/build/surge-rs-b9682071e1fd954b/out/build/src/common/libsurge-common.a
-./target/debug/build/surge-rs-b9682071e1fd954b/out/build/libs/zstd/build/cmake/lib/libzstd.a
-./target/debug/build/surge-rs-b9682071e1fd954b/out/build/libs/sqlite-3.23.3/libsqlite.a
-./target/debug/build/surge-rs-b9682071e1fd954b/out/build/libs/oddsound-mts/liboddsound-mts.a
-./target/debug/build/surge-rs-b9682071e1fd954b/out/build/libs/fmt/libfmtd.a
-./target/debug/build/surge-rs-b9682071e1fd954b/out/build/libs/pffft/libpffft.a
-./target/debug/build/surge-rs-b9682071e1fd954b/out/build/libs/eurorack/libeurorack.a
-./target/debug/build/surge-rs-b9682071e1fd954b/out/build/libs/binn/libbinn.a
-./target/debug/build/surge-rs-b9682071e1fd954b/out/build/libs/airwindows/libairwindows.a
-./target/debug/build/surge-rs-b9682071e1fd954b/out/build/libs/sst/sst-plugininfra/libsst-plugininfra.a
-./target/debug/build/surge-rs-b9682071e1fd954b/out/build/libs/sst/sst-plugininfra/libs/strnatcmp/libstrnatcmp.a
-./target/debug/build/surge-rs-b9682071e1fd954b/out/build/libs/sst/sst-plugininfra/libs/tinyxml/libtinyxml.a*/
-
-
-
     println!("cargo:rerun-if-changed=cpp/bridge.cpp");
     println!("cargo:rerun-if-changed=cpp/bridge.h");
     let mut bbuild = cc::Build::new();

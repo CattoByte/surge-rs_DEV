@@ -7,8 +7,8 @@ unsafe extern "C" {
     pub fn destroy_parameter(p: *mut Parameter);
 
     pub fn getNumInputs(surge: *mut SurgeSynthesizer) -> i32;   // TODO: convert to const?
-    pub fn getNumOutputs(surge: *mut SurgeSynthesizer) -> i32;
-    pub fn getBlockSize(surge: *mut SurgeSynthesizer) -> i32;
+    pub fn getNumOutputs(surge: *mut SurgeSynthesizer) -> i32;  // update: no, but look into it more.
+    pub fn getBlockSize(surge: *mut SurgeSynthesizer) -> i32;   // as in, it didn't work.
 
     pub fn getSynthSideId(id: *const SurgeSynthesizer_ID) -> i32;
 
