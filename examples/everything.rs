@@ -134,38 +134,4 @@ fn main() {
         initial += 8;
         thread::sleep(Duration::from_millis(200));
     }
-
-    /*loop {
-        let notes = [initial, initial + 4, initial + 7];
-
-        for n in notes {
-            synth.play_note(0, n, 100, 0, 0, 0);
-        }
-
-        initial += 1;
-    }
-
-
-    synth.play_note(0, 60, 127, 0, 0, 0);
-
-    let mut l_samples: Vec<_> = Vec::new();
-    let mut r_samples: Vec<_> = Vec::new();
-    for _ in 0..100 {
-        synth.process();
-        let samples = synth.pull_buffer();
-        l_samples.extend_from_slice(&samples[0]);
-        r_samples.extend_from_slice(&samples[1]);
-    }
-
-    let l_data: Vec<_> = l_samples.iter().enumerate().map(|(i, &s)| (i as f32, s)).collect();
-    let r_data: Vec<_> = r_samples.iter().enumerate().map(|(i, &s)| (i as f32, s)).collect();
-
-    println!("lightning surge from the clouds:");
-    Chart::new(200, 80, 0.0, l_data.len() as f32)
-        .lineplot(&Shape::Lines(&l_data))
-        .display();
-    println!("this one's from the right:");
-    Chart::new(200, 30, 0.0, r_data.len() as f32)   // more cache-friendly to use l_data?
-        .lineplot(&Shape::Lines(&r_data))
-        .display();*/
 }
