@@ -5,7 +5,6 @@ authors = ["NV4 <cattobyte@kyararanbii.xyz>"]
 edition = "2024"
 description = "(Official) Rust bindings for the Surge XT synthesizer."
 license = "GPL-3.0-or-later"
-license-file = "LICENCE"							# *that's* how you write it!
 keywords = ["audio", "synthesis", "api", "ffi"]
 categories = ["multimedia::audio", "api-bindings", "external-ffi-bindings"]
 exclude = ["/sbmod"]
