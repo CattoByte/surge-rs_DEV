@@ -9,7 +9,7 @@ class ErrCork : public SurgeSynthesizer::PluginLayer {
 };
 
 extern "C" {
-	SurgeSynthesizer* create_engine(float sr) {
+EXP	SurgeSynthesizer* create_engine(float sr) {
 		auto* layer = new ErrCork();
 		auto* surge = new SurgeSynthesizer(layer, "");
 
@@ -20,47 +20,47 @@ extern "C" {
 		return surge;
 	}
 
-	void destroy_engine(SurgeSynthesizer* surge) {
+EXP	void destroy_engine(SurgeSynthesizer* surge) {
 		if (surge) delete surge;	// this just works?
 	}
 
 	// TODO: check if below and above even need the if.
-	void destroy_parameter(Parameter* p) {
+EXP	void destroy_parameter(Parameter* p) {
 		if (p) delete p;
 	}
 
 	// header functions that don't get exported by bindgen.
 	// could be hard-coded but i'd rather have it be a bit more verbose in exchange for correctness.
-	int getNumInputs(SurgeSynthesizer* surge)	{ return surge->getNumInputs(); }
-	int getNumOutputs(SurgeSynthesizer* surge)	{ return surge->getNumOutputs(); }
-	int getBlockSize(SurgeSynthesizer* surge)	{ return surge->getBlockSize(); }
+EXP	int getNumInputs(SurgeSynthesizer* surge)	{ return surge->getNumInputs(); }
+EXP	int getNumOutputs(SurgeSynthesizer* surge)	{ return surge->getNumOutputs(); }
+EXP	int getBlockSize(SurgeSynthesizer* surge)	{ return surge->getBlockSize(); }
 	// member functions that don't get exported by bindgen.
-	int getSynthSideId(const ID* id)		{ return id->getSynthSideId(); }
+EXP	int getSynthSideId(const ID* id)		{ return id->getSynthSideId(); }
 	// more header functions. note 1.
 #define CSUR const SurgeSynthesizer* surge
 #define NSUR SurgeSynthesizer* surge
 #define IAT1 const ID* index, char* text
 #define IAT2 *index, text
 #define IDPO const ID* index
-	bool fromSynthSideId			(CSUR, int i, ID* q)		{ return surge->fromSynthSideId(i, *q); }
-	ID idForParameter			(CSUR, const Parameter* p)	{ return surge->idForParameter(p); }
-	void getParameterDisplay		(CSUR, IAT1)			{ return surge->getParameterDisplay(IAT2); }
-	void getParameterDisplayAlt		(CSUR, IAT1)			{ return surge->getParameterDisplay(IAT2); }
-	void getParameterName			(CSUR, IAT1)			{ return surge->getParameterName(IAT2); }
-	void getParameterNameExtendedByFXGroup	(CSUR, IAT1)			{ return surge->getParameterNameExtendedByFXGroup(IAT2); }
-	void getParameterAccessibleName		(CSUR, IAT1)			{ return surge->getParameterAccessibleName(IAT2); }
-	void getParameterMeta			(CSUR, IDPO, parametermeta* pm)	{ return surge->getParameterMeta(*index, *pm); }
-	float getParameter01			(CSUR, IDPO)			{ return surge->getParameter01(*index); }
-	bool setParameter01			(NSUR, IDPO,
+EXP	bool fromSynthSideId			(CSUR, int i, ID* q)		{ return surge->fromSynthSideId(i, *q); }
+EXP	ID idForParameter			(CSUR, const Parameter* p)	{ return surge->idForParameter(p); }
+EXP	void getParameterDisplay		(CSUR, IAT1)			{ return surge->getParameterDisplay(IAT2); }
+EXP	void getParameterDisplayAlt		(CSUR, IAT1)			{ return surge->getParameterDisplay(IAT2); }
+EXP	void getParameterName			(CSUR, IAT1)			{ return surge->getParameterName(IAT2); }
+EXP	void getParameterNameExtendedByFXGroup	(CSUR, IAT1)			{ return surge->getParameterNameExtendedByFXGroup(IAT2); }
+EXP	void getParameterAccessibleName		(CSUR, IAT1)			{ return surge->getParameterAccessibleName(IAT2); }
+EXP	void getParameterMeta			(CSUR, IDPO, parametermeta* pm)	{ return surge->getParameterMeta(*index, *pm); }
+EXP	float getParameter01			(CSUR, IDPO)			{ return surge->getParameter01(*index); }
+EXP	bool setParameter01			(NSUR, IDPO,
 						float value,
 						bool external,
 						bool force_integer)
 						{ return surge->setParameter01(
 							*index, value, external, force_integer);
 						} // this looks really bad.
-	float normalizedToValue(CSUR, IDPO, float val)		{ return surge->normalizedToValue(*index, val); }
-	float valueToNormalized(CSUR, IDPO, float val)		{ return surge->valueToNormalized(*index, val); }
-	void sendParameterAutomation(NSUR, IDPO, float val)	{ return surge->sendParameterAutomation(*index, val); }
+EXP	float normalizedToValue(CSUR, IDPO, float val)		{ return surge->normalizedToValue(*index, val); }
+EXP	float valueToNormalized(CSUR, IDPO, float val)		{ return surge->valueToNormalized(*index, val); }
+EXP	void sendParameterAutomation(NSUR, IDPO, float val)	{ return surge->sendParameterAutomation(*index, val); }
 #undef CSUR
 #undef NSUR
 #undef IAT1

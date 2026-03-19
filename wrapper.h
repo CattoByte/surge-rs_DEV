@@ -1,5 +1,5 @@
 // TODO: clean up.
-#include "sbmod/surge/src/common/SurgeSynthesizer.h"
-#include "sbmod/surge/src/common/SurgeStorage.h"
-#include "sbmod/surge/src/common/Parameter.h"
-//#include "sbmod/surge/src/common/globals.h"
+#include "src/common/SurgeSynthesizer.h"
+#include "src/common/SurgeStorage.h"
+#include "src/common/Parameter.h"
+//#include "src/common/globals.h"

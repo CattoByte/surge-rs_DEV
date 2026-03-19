@@ -20,7 +20,15 @@ cmake = "0.1.57"
 serde_json = "1.0.149"
 shell-words = "1.1.1"
 cc = "1.2.57"
+git2 = "0.20.4"
 
 [[example]]
 name = "everything"
 path = "examples/everything.rs"
+
+[features]
+in-surge-tree = []
+
+# whatever the default release one does is *not* apt and will give link errors.
+#[profile.release]
+#opt-level = 1

@@ -1,4 +1,0 @@
-[submodule "sbmod/surge"]
-	path = sbmod/surge
-	url = https://github.com/surge-synthesizer/surge/
-	ignore = all

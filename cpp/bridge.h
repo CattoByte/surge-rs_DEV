@@ -1,34 +1,42 @@
 #pragma once	// of course.
-#include "../sbmod/surge/src/common/SurgeSynthesizer.h"
+#include "src/common/SurgeSynthesizer.h"
+
+// forgot the linking issue was in surge so this is all useless.
+// but we're leaving it.
+#if defined(_WIN32) || defined(__CYGWIN__)
+	#define EXP __declspec(dllexport)
+#else
+	#define EXP __attribute__((visibility("default"))) __attribute__((used))
+#endif
 
 typedef SurgeSynthesizer::ID ID;
 
 extern "C" {	// linkage?
-	SurgeSynthesizer* create_engine(float sr);
-	void destroy_engine(SurgeSynthesizer* surge);
-	void destroy_parameter(Parameter* p);
+EXP	SurgeSynthesizer* create_engine(float sr);
+EXP	void destroy_engine(SurgeSynthesizer* surge);
+EXP	void destroy_parameter(Parameter* p);
 	// note 1.
-	int getNumInputs(SurgeSynthesizer* surge);
-	int getNumOutputs(SurgeSynthesizer* surge);
-	int getBlockSize(SurgeSynthesizer* surge);
-	int getSynthSideId(const SurgeSynthesizer::ID* id);
+EXP	int getNumInputs(SurgeSynthesizer* surge);
+EXP	int getNumOutputs(SurgeSynthesizer* surge);
+EXP	int getBlockSize(SurgeSynthesizer* surge);
+EXP	int getSynthSideId(const SurgeSynthesizer::ID* id);
 #define CSUR const SurgeSynthesizer* surge
 #define NSUR SurgeSynthesizer* surge
 #define IAT1 const ID* index, char* text
 #define IDPO const ID* index
-	bool fromSynthSideId			(CSUR, int i, ID* q);
-	ID idForParameter			(CSUR, const Parameter* p);
-	void getParameterDisplay		(CSUR, IAT1);
-	void getParameterDisplayAlt		(CSUR, IAT1);
-	void getParameterName			(CSUR, IAT1);
-	void getParameterNameExtendedByFXGroup	(CSUR, IAT1);
-	void getParameterAccessibleName		(CSUR, IAT1);
-	void getParameterMeta			(CSUR, IDPO, parametermeta* pm);
-	float getParameter01			(CSUR, IDPO);
-	bool setParameter01			(NSUR, IDPO, float value, bool external = false, bool force_integer = false);
-	float normalizedToValue			(CSUR, IDPO, float val);
-	float valueToNormalized			(CSUR, IDPO, float val);
-	void sendParameterAutomation		(NSUR, IDPO, float val);
+EXP	bool fromSynthSideId			(CSUR, int i, ID* q);
+EXP	ID idForParameter			(CSUR, const Parameter* p);
+EXP	void getParameterDisplay		(CSUR, IAT1);
+EXP	void getParameterDisplayAlt		(CSUR, IAT1);
+EXP	void getParameterName			(CSUR, IAT1);
+EXP	void getParameterNameExtendedByFXGroup	(CSUR, IAT1);
+EXP	void getParameterAccessibleName		(CSUR, IAT1);
+EXP	void getParameterMeta			(CSUR, IDPO, parametermeta* pm);
+EXP	float getParameter01			(CSUR, IDPO);
+EXP	bool setParameter01			(NSUR, IDPO, float value, bool external = false, bool force_integer = false);
+EXP	float normalizedToValue			(CSUR, IDPO, float val);
+EXP	float valueToNormalized			(CSUR, IDPO, float val);
+EXP	void sendParameterAutomation		(NSUR, IDPO, float val);
 #undef CSUR
 #undef NSUR
 #undef IAT1
