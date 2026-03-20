@@ -4,6 +4,17 @@ use git2::build::CheckoutBuilder;
 use {bindgen, serde_json, shell_words, cmake, cc, git2};
 // ^ here to easily check if they go unused.
 
+macro_rules! realprint {
+    ($($tokens:tt)*) => {
+        println!("\x1b[1;32m[SRS] =>\x1b[0m {}", format!($($tokens)*));
+    }
+}
+macro_rules! fakeprint {
+    ($($tokens:tt)*) => {
+        println!("\x1b[1;36m[SRS] =>\x1b[0m {}", format!($($tokens)*));
+    }
+}
+
 fn pct_callback(c: &mut u32, p: git2::Progress<'_>) -> bool {
     *c += 1;
     if *c == 10 {
@@ -13,7 +24,7 @@ fn pct_callback(c: &mut u32, p: git2::Progress<'_>) -> bool {
             / p.total_objects() as f32
             * 100.0;
 
-        println!(
+        fakeprint!(
             "\x1B[APULL...  {:6.2}%  ({: >5}/{: <5}); {} bytes.",
             percentage,
             p.received_objects(),
@@ -39,7 +50,7 @@ fn chk_callback(p: Option<&Path>, c: usize, t: usize) {
 
     let percentage = c as f32 / t as f32 * 100.0;
 
-    println!(
+    fakeprint!(
         "\x1B[ACHECK... {:6.2}%  ({: >5}/{: <5}); @ {: >25}.",
         percentage,
         c,
@@ -52,7 +63,7 @@ fn sm_update_rec(repo: &git2::Repository) {
     let sms = repo.submodules().expect("the surge's insides are devoid of instructions...");
     for mut sm in sms {
         let name = sm.name().unwrap_or("???");
-        println!("injecting \"{}\" into the surge.", name);
+        realprint!("injecting \"{}\" into the surge.", name);
 
         sm.init(false).expect("joy initialization failed.");
         let mut counter = 0;
@@ -65,13 +76,13 @@ fn sm_update_rec(repo: &git2::Repository) {
         fopts.remote_callbacks(callbacks).prune(git2::FetchPrune::On);
         uopts.fetch(fopts).checkout(checkout);
 
-        println!("...");
+        fakeprint!("...");
         sm.update(true, Some(&mut uopts)).expect("failed to introduce into the surge.");
-        println!("\x1B[AOK.                                                           ");
+        fakeprint!("\x1B[AOK.                                                           ");
 
         if let Ok(repo) = sm.open() {
             if repo.submodules().unwrap().len() > 0 {
-                println!("found extra goodies to insert.");
+                fakeprint!("found extra goodies to insert.");
                 sm_update_rec(&repo);
             }
         }
@@ -81,17 +92,17 @@ fn sm_update_rec(repo: &git2::Repository) {
 fn pull_surge_from_clouds(dst: &Path) {
     if dst.exists() {
         if git2::Repository::open(dst).unwrap().head().is_ok() {
-            println!("surge is down from the clouds. no action.");
+            realprint!("surge is down from the clouds. no action.");
             return;
         } else {
-            println!("surge is down from the clouds, but it came down mangled.");
-            assert_eq!(dst.to_str().unwrap(), "sbmod/surge/");    // just as safety.
+            realprint!("surge is down from the clouds, but it came down mangled.");
+            assert_eq!(dst.to_str().unwrap(), "sbmod/surge");   // just as safety.
             std::fs::remove_dir_all(dst).unwrap();
-            println!("removed the mangled surge. poor thing.");
+            realprint!("removed the mangled surge. poor thing.");
         }
     }
 
-    println!("surge is in the sky. pulling surge from the clouds.");
+    realprint!("surge is in the sky. pulling surge from the clouds.");
     let mut counter = 0;
     let mut callbacks = git2::RemoteCallbacks::new();
     let mut checkout = CheckoutBuilder::new();
@@ -104,29 +115,40 @@ fn pull_surge_from_clouds(dst: &Path) {
     let mut fopts = git2::FetchOptions::new();
     fopts.depth(1).remote_callbacks(callbacks).prune(git2::FetchPrune::On);
 
-    println!("...");
+    fakeprint!("...");
     git2::build::RepoBuilder::new()
         .fetch_options(fopts)
         .with_checkout(checkout)
         .clone("https://github.com/surge-synthesizer/surge", dst)
         .expect("the sun came up, so we were unable to pull surge from the clouds.");
-    println!("\x1B[AOK.                                                           ");
+    fakeprint!("\x1B[AOK.                                                           ");
 
     // sorry for writing this one. m(._.)m
-    println!("the pulled surge is stable, but we need to fill its innards with joy.");
+    realprint!("the pulled surge is stable, but we need to fill its innards with joy.");
     let repo = git2::Repository::open(dst).expect("somehow couldn't crack open the surge.");
     sm_update_rec(&repo);
-    println!("surge is ready.");
+    realprint!("surge is ready.");
 
+}
+
+#[derive(Debug)]
+struct NoSystemHeaders;
+
+impl bindgen::callbacks::ParseCallbacks for NoSystemHeaders {
+    fn include_file(&self, filename: &str) {
+        if filename.contains("surge") && filename.ends_with("src/") {
+            println!("cargo:rerun-if-changed={}", filename);
+        }
+    }
 }
 
 fn main() {
     // TODO: allow custom directory or keep tree mode?
     let (spath, bpath) = if env::var("CARGO_FEATURE_IN_SURGE_TREE").is_ok() {
-        println!("feature \"in-surge-tree\" enabled. using parent directories.");
-        ("../..".to_string(), "../..".to_string())
+        realprint!("feature \"in-surge-tree\" enabled. using parent directories.");
+        ("../../..".to_string(), "../../..".to_string())
     } else {
-        println!("feature \"in-surge-tree\" disabled. pulling surge.");
+        realprint!("feature \"in-surge-tree\" disabled. pulling surge.");
         let sdst = "sbmod/surge".to_string();
         pull_surge_from_clouds(&Path::new(&sdst));
         let bdst = cmake::Config::new(&sdst)
@@ -146,8 +168,8 @@ fn main() {
         (sdst, String::from(bdst.to_str().unwrap()))
     }.to_owned();
 
-    println!("cargo:-rerun-if-changed=wrapper.h");
-    println!("cargo:-rerun-if-changed=cpp");
+    println!("cargo:rerun-if-changed=wrapper.h");
+    println!("cargo:rerun-if-changed=cpp");
 
     // i know.
     println!("cargo:rustc-link-search=native={}", bpath.clone() + "/build/src/common");
@@ -165,6 +187,7 @@ fn main() {
     println!("cargo:rustc-link-search=native={}", bpath.clone() + "/build/libs/sst/sst-plugininfra/libs/tinyxml");
     println!("cargo:rustc-link-lib=static=surge-lua-src");
     println!("cargo:rustc-link-lib=static=surge-common");
+    if env::var("CARGO_FEATURE_IN_SURGE_TREE").is_ok() { println!("cargo:rustc-link-lib=static=surge-common-binary"); }
     println!("cargo:rustc-link-lib=static=zstd");
     println!("cargo:rustc-link-lib=static=sqlite");
     println!("cargo:rustc-link-lib=static=oddsound-mts");
@@ -179,6 +202,7 @@ fn main() {
 
     println!("cargo:rerun-if-changed=cpp/bridge.cpp");
     println!("cargo:rerun-if-changed=cpp/bridge.h");
+    realprint!("gathering bridge materials.");
     let mut bbuild = cc::Build::new();
     bbuild
         .warnings(false)
@@ -194,10 +218,8 @@ fn main() {
         //.flag("--verbose")
         .file("cpp/bridge.cpp");
 
-    let comcom = bpath.clone() + "/build/compile_commands.json";    // "compile commands". comcom.
-    let json = std::fs::read_to_string(&comcom).expect("failed to read comcom!");
-    let coms: serde_json::Value = serde_json::from_str(&json).expect("failed to parse comcom!");
-
+    println!("cargo:rerun-if-changed={}", spath.clone() + "/src" );
+    realprint!("searching for what the glue should bind.");
     let mut bindings = bindgen::Builder::default()
         .header("wrapper.h")
         .clang_arg("-I".to_owned() + &spath)    // crazy you gotta do this owned stuff.
@@ -221,8 +243,13 @@ fn main() {
         .allowlist_item("Surge.*")          // fix for everything else (the nuclear option).
         .allowlist_item(".*idFor.*")        // fix for functions i need (unexported).
         .allowlist_item(".*Storage.*")      // fix for surge storage (most stuff).
-        .allowlist_item(".*State.*")        // fix for surge storage (other stuff).
-        .parse_callbacks(Box::new(bindgen::CargoCallbacks::new().rerun_on_header_files(false)));
+        .allowlist_item(".*State.*");       // fix for surge storage (other stuff).
+        //.parse_callbacks(Box::new(bindgen::CargoCallbacks::new().rerun_on_header_files(false)));
+    
+    realprint!("peeking into surge's build flags.");
+    let comcom = bpath.clone() + "/build/compile_commands.json";    // "compile commands". comcom.
+    let json = std::fs::read_to_string(&comcom).expect("failed to read comcom!");
+    let coms: serde_json::Value = serde_json::from_str(&json).expect("failed to parse comcom!");
 
     // get and use all the include paths from the configure.
     let mut unique = HashSet::new();
@@ -231,7 +258,7 @@ fn main() {
             shell_words::split(clist.as_str().unwrap())
                 .unwrap()
                 .into_iter()
-                .filter(|x| x.starts_with("-I") || x.starts_with("-D"))
+                .filter(|x| x.starts_with("-I") || x.starts_with("-DSURGE"))
                 .for_each(|x| { unique.insert(x); })
         }
     }
@@ -240,18 +267,21 @@ fn main() {
     let mut tempvec: Vec<_> = unique.into_iter().collect();
     tempvec.sort();
     for flag in tempvec {
-        eprintln!("new flag: {}", flag);
+        fakeprint!("new flag: {}", flag);
         bbuild.flag(&flag);
         bindings = bindings.clone().clang_arg(&flag);
     }
 
+    realprint!("bridge is being built. please hold.");
     let out = bbuild.try_compile("bridge");
     if let Err(e) = out { panic!("bridge burnt down while building.\n\n{}", e); }
     println!("cargo:rustc-link-lib=static=bridge");
 
+    realprint!("generating bindings. please hold so i can make the glue.");
     let bindings = bindings.generate().expect("unable to generate surge bindings");
     let storehere = PathBuf::from(env::var("OUT_DIR").unwrap());
     bindings
         .write_to_file(storehere.join("bindings.rs"))
         .expect("couldn't write bindings.");
+    realprint!("all done!");
 }
